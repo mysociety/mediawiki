@@ -1,0 +1,9 @@
+# crontab.ugly:
+#     Timed tasks for wiki. Template file.
+#
+# Copyright (c) 2010 UK Citizens Online Democracy. All rights reserved.
+
+PATH=/usr/local/bin:/usr/bin:/bin
+
+# 11 *    * * *   !!(*= $user *)!! /data/vhost/!!(*= $vhost *)!!/internal/wiki/bin/aliases-to-wiki > /dev/null 2>&1
+11 3    * * *   root /home/wiki/.venv/bin/python /data/mysociety/bin/google_apps_email_list.py  > /home/wiki/google-apps.html 2>/dev/null
