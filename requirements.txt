@@ -1,0 +1,4 @@
+PyYAML
+mwclient
+google-api-python-client
+urllib3[secure]

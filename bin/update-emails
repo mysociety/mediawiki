@@ -1,0 +1,70 @@
+#!/usr/bin/env python
+
+import logging
+import os
+import re
+import mwclient
+import yaml
+
+EXIM_DIR = '/etc/exim4/virtual/'
+logger = logging.getLogger('wikibot')
+
+conf_file = os.path.dirname(os.path.dirname(__file__)) + '/conf/general.yml'
+CONFIG = yaml.load(open(conf_file))
+
+
+def main():
+    logger.info('ProjectDB Wiki Bot')
+    mw = MediaWiki()
+
+    for o in sorted(os.listdir(EXIM_DIR)):
+        logger.debug(o)
+        text = []
+        for local, recips in exim_aliases(o):
+            recips = re.sub('[a-z0-9._-]*@[a-z0-9._-]*(?i)', r'[mailto:\g<0> \g<0>]', recips)
+            text.append("* '''[mailto:%s@%s %s]''': %s" % (local, o, local, recips))
+
+        text = '\n'.join(sorted(text))
+        if not CONFIG['WIKIBOT_SANDBOX']:
+            text += "\n\n[[Category:Email]]"
+
+        page = mw.get_page('Email:%s' % o)
+        if page.text() != text:
+            logger.info('Updating %s' % o)
+            page.save(text, summary='Updating aliases')
+
+
+def exim_aliases(fn):
+    for line in open('%s%s' % (EXIM_DIR, fn)):
+        if re.match('#| *$', line):
+            continue
+        m = re.match('^([^:]*): *(.*)', line)
+        local, recips = m.groups()
+        yield local, recips
+
+
+class MediaWiki(object):
+    pageprefix = ''
+
+    def __init__(self):
+        if CONFIG['WIKIBOT_SANDBOX']:
+            logger.info('Running in sandbox mode.')
+            self.pageprefix = 'Sandbox:'
+
+        logger.info('Connecting to the Wiki...')
+        site = mwclient.Site(
+            ('https', CONFIG['WIKI_URL']),
+            httpauth=(CONFIG['WIKIBOT_USERNAME'], CONFIG['WIKIBOT_PASSWORD']),
+            clients_useragent='mySociety Wiki Bot',
+            path=CONFIG['WIKI_PATH']
+        )
+        site.login(CONFIG['WIKIBOT_USERNAME'], CONFIG['WIKIBOT_PASSWORD'])
+        logger.info('Connected!')
+        self.site = site
+
+    def get_page(self, page):
+        return self.site.Pages[self.pageprefix + page]
+
+
+if __name__ == '__main__':
+    main()

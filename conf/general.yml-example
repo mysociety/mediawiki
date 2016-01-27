@@ -1,0 +1,5 @@
+WIKI_URL: wiki.example.org
+WIKI_PATH: /mediawiki/
+WIKIBOT_USERNAME: bot
+WIKIBOT_PASSWORD: password
+WIKIBOT_SANDBOX: 0
