@@ -6,4 +6,4 @@ PATH=/usr/local/bin:/usr/bin:/bin
 PYTHON=/data/vhost/!!(*= $vhost *)!!/virtualenv-wiki/bin/python
 
 11 * * * * !!(*= $user *)!! $PYTHON /data/vhost/!!(*= $vhost *)!!/internal/wiki/bin/update-emails
-11 3 * * * root             $PYTHON /data/mysociety/bin/google_apps_email_list.py > /home/wiki/google-apps.html 2>/dev/null
+11 3 * * * root             $PYTHON /data/vhost/!!(*= $vhost *)!!/internal/wiki/bin/update-emails-google
