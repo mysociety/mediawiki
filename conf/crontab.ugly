@@ -5,5 +5,6 @@ PATH=/usr/local/bin:/usr/bin:/bin
 
 PYTHON=/data/vhost/!!(*= $vhost *)!!/virtualenv-wiki/bin/python
 
+24 5 * * * !!(*= $user *)!! $PYTHON /data/vhost/!!(*= $vhost *)!!/internal/wiki/bin/wikibot-fixup.py
 11 * * * * !!(*= $user *)!! $PYTHON /data/vhost/!!(*= $vhost *)!!/internal/wiki/bin/update-emails
 11 3 * * * root             $PYTHON /data/vhost/!!(*= $vhost *)!!/internal/wiki/bin/update-emails-google
