@@ -84,7 +84,7 @@ for r in response['groups']:
 
 
 # Update wiki
-text = sys.stdout.getvalue()
+text = sys.stdout.getvalue().strip()
 mw = MediaWiki()
 page = mw.get_page('Email')
 current_text = page.text()
