@@ -1,31 +1,16 @@
 # wiki-fixup Bot
 
-import os, sys, yaml, mwclient, random, re
+import random
+import re
 
-scriptdir = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, os.path.join(scriptdir, '..', 'bots'))
-config = yaml.load(open(os.path.join(scriptdir, '..', 'conf', 'general.yml')))
+from mediawiki import MediaWiki
 
 print 'Wiki Fixup Randomiser'
 
-print 'Connecting to the Wiki...'
+site = MediaWiki(user_agent='Wiki Fixup Bot')
 
-site = mwclient.Site(
-    ('https', config.get('WIKI_URL')),
-    httpauth=(config.get('WIKIBOT_USERNAME'), config.get('WIKIBOT_PASSWORD')),
-    clients_useragent='Wiki Fixup Bot',
-    path=config.get('WIKI_PATH')
-)
-site.login(config.get('WIKIBOT_USERNAME'), config.get('WIKIBOT_PASSWORD'))
-
-print 'Connected!'
-
-category = site.Pages['Category:Work Needed']
-
-pages = []
-
-for page in category:
-    pages.append(page)
+category = site.get_page('Category:Work Needed')
+pages = [page for page in category]
 
 print 'There are ' + str(len(pages)) + ' pages needing work.'
 
@@ -37,7 +22,7 @@ fixcount = len(pages)
 print 'Today we shall fix "' + chosenpage.name + '"!'
 
 # Go get the home page, this is where Today lives
-page = site.Pages['Main_Page']
+page = site.get_page('Main_Page')
 text = page.text()
 
 # Regex for the section we're looking for
@@ -59,12 +44,12 @@ update_notes = 'Automatic update from Wiki Fixup Bot'
 if sectionmatch is not None:
     print '  Found section, updating it with article count and random page.'
     text = re.sub(sectionre, section, text)
-    update_notes = update_notes + ', updated pages in need of help section'
+    update_notes += ', updated pages in need of help section'
 else:
     print '  No section found, adding a new one with article count and random page.'
     text = section + "\n\n" + text
-    update_notes = update_notes + ', added pages in need of help section'
+    update_notes += ', added pages in need of help section'
 
 # Save out the page, for good and awesome.
-page.save(text, summary = update_notes)
+page.save(text, summary=update_notes)
 print '  Page saved.'

@@ -14,7 +14,7 @@ CONFIG = yaml.load(open(conf_file))
 class MediaWiki(object):
     pageprefix = ''
 
-    def __init__(self):
+    def __init__(self, user_agent='mySociety Wiki Bot'):
         if CONFIG['WIKIBOT_SANDBOX']:
             logger.info('Running in sandbox mode.')
             self.pageprefix = 'Sandbox:'
@@ -23,7 +23,7 @@ class MediaWiki(object):
         site = mwclient.Site(
             ('https', CONFIG['WIKI_URL']),
             httpauth=(CONFIG['WIKIBOT_USERNAME'], CONFIG['WIKIBOT_PASSWORD']),
-            clients_useragent='mySociety Wiki Bot',
+            clients_useragent=user_agent,
             path=CONFIG['WIKI_PATH']
         )
         site.login(CONFIG['WIKIBOT_USERNAME'], CONFIG['WIKIBOT_PASSWORD'])
