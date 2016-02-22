@@ -51,5 +51,8 @@ else:
     update_notes += ', added pages in need of help section'
 
 # Save out the page, for good and awesome.
-page.save(text, summary=update_notes)
-print '  Page saved.'
+if text != page.text():
+    page.save(text, summary=update_notes)
+    print '  Page saved.'
+else:
+    print '  No change in page text, not saving'
