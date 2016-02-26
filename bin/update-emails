@@ -19,8 +19,18 @@ def main():
 
     for o in sorted(os.listdir(EXIM_DIR)):
         logger.debug(o)
+        fn = '%s%s' % (EXIM_DIR, o)
+
+        if os.path.islink(fn):
+            dest = os.path.basename(os.path.realpath(fn))
+            text = '#REDIRECT [[Email:%s]]' % dest
+            if not CONFIG['WIKIBOT_SANDBOX']:
+                text += "\n\n[[Category:Email]]"
+            mw.update_page('Email:%s' % o, text, 'Updating aliases')
+            continue
+
         text = []
-        for local, recips in exim_aliases(o):
+        for local, recips in exim_aliases(fn):
             recips = re.sub('[a-z0-9._-]*@[a-z0-9._-]*(?i)', r'[mailto:\g<0> \g<0>]', recips)
             text.append("* '''[mailto:%s@%s %s]''': %s" % (local, o, local, recips))
             if local in SUPPORT_ALIASES:
@@ -39,7 +49,7 @@ def main():
 
 
 def exim_aliases(fn):
-    for line in open('%s%s' % (EXIM_DIR, fn)):
+    for line in open(fn):
         if re.match('#| *$', line):
             continue
         m = re.match('^([^:]*): *(.*)', line)
