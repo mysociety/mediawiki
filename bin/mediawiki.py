@@ -2,6 +2,7 @@
 
 import logging
 import os
+import re
 import mwclient
 import yaml
 
@@ -32,3 +33,19 @@ class MediaWiki(object):
 
     def get_page(self, page):
         return self.site.Pages[self.pageprefix + page]
+
+    def update_page(self, page, text, summary):
+        page = self.get_page(page)
+        if page.text() != text:
+            logger.info('Updating %s' % page.name)
+            page.save(text, summary=summary)
+
+    def replace_page_part(self, page, text, begin_marker, end_marker, summary):
+        page = self.get_page(page)
+        current_text = page.text()
+        text = re.sub(
+            '(<!-- %s -->\s*).*?(\s*<!-- %s -->)(?s)' % (begin_marker, end_marker),
+            r'\1%s\2' % text.strip(), current_text)
+        if text != current_text:
+            logger.info('Updating %s' % page.name)
+            page.save(text, summary=summary)

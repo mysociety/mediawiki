@@ -6,6 +6,8 @@ import re
 from mediawiki import MediaWiki, CONFIG
 
 EXIM_DIR = '/etc/exim4/virtual/'
+SUPPORT_ALIASES = ('clientsupport', 'support', 'staff')
+
 logger = logging.getLogger('wikibot')
 
 
@@ -13,21 +15,27 @@ def main():
     logger.info('ProjectDB Wiki Bot')
     mw = MediaWiki()
 
+    support_data = {'staff': [], 'support': [], 'clientsupport': []}
+
     for o in sorted(os.listdir(EXIM_DIR)):
         logger.debug(o)
         text = []
         for local, recips in exim_aliases(o):
             recips = re.sub('[a-z0-9._-]*@[a-z0-9._-]*(?i)', r'[mailto:\g<0> \g<0>]', recips)
             text.append("* '''[mailto:%s@%s %s]''': %s" % (local, o, local, recips))
+            if local in SUPPORT_ALIASES:
+                support_data[local].append("* '''[mailto:%s@%s %s]''': %s" % (local, o, o, recips))
 
         text = '\n'.join(sorted(text))
         if not CONFIG['WIKIBOT_SANDBOX']:
             text += "\n\n[[Category:Email]]"
+        mw.update_page('Email:%s' % o, text, 'Updating aliases')
 
-        page = mw.get_page('Email:%s' % o)
-        if page.text() != text:
-            logger.info('Updating %s' % o)
-            page.save(text, summary='Updating aliases')
+    support_text = ''
+    for x in SUPPORT_ALIASES:
+        support_text += "== %s@ ==\n\n%s\n\n" % (x, '\n'.join(sorted(support_data[x])))
+
+    mw.replace_page_part('Support_email', support_text, 'BEGIN AUTOMATED LIST', 'END AUTOMATED LIST', 'Updating support email')
 
 
 def exim_aliases(fn):

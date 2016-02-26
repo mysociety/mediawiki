@@ -84,13 +84,6 @@ for r in response['groups']:
 
 
 # Update wiki
-text = sys.stdout.getvalue().strip()
+text = sys.stdout.getvalue()
 mw = MediaWiki()
-page = mw.get_page('Email')
-current_text = page.text()
-text = re.sub(
-    '(<!-- LIST OF GOOGLE USERS AND GROUPS -->\s*).*?(\s*<!-- END OF LIST OF GOOGLE USERS AND GROUPS -->)(?s)',
-    r'\1%s\2' % text, current_text)
-if text != current_text:
-    logger.info('Updating Google Apps text')
-    page.save(text, summary='Updating email data')
+mw.replace_page_part('Email', text, 'LIST OF GOOGLE USERS AND GROUPS', 'END OF LIST OF GOOGLE USERS AND GROUPS', 'Updating email data')
