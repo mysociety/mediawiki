@@ -21,6 +21,11 @@ projectdb_category_map = {
     '657': 'research'
 }
 
+projectdb_canonical_country_names = {
+    'Myanmar (Burma)': 'Myanmar',
+    'United States': 'United States of America'
+}
+
 # Regex to match the organisation infoboxes
 organisation_infobox_re = re.compile('\{\{ ?infobox organisation(.*?)\}\}', re.M | re.S)
 
@@ -102,7 +107,8 @@ while (pagination_remaining):
 """
 
             if organisation['address_country']:
-                infobox += '|country=' + organisation['address_country'] + """
+                canonical_name = projectdb_canonical_country_names.get(organisation['address_country'], organisation['address_country'])
+                infobox += '|country=' + canonical_name + """
 """
 
             # If there are any mapped categories, do something useful
