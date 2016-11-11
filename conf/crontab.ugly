@@ -7,5 +7,6 @@ PYTHON=/data/vhost/!!(*= $vhost *)!!/virtualenv-wiki/bin/python
 
 24 5 * * * !!(*= $user *)!! $PYTHON /data/vhost/!!(*= $vhost *)!!/internal/wiki/bin/wikibot-fixup.py
 36 3 * * * !!(*= $user *)!! $PYTHON /data/vhost/!!(*= $vhost *)!!/internal/wiki/bin/wikibot-pipedrive.py
+*/5 * * * * !!(*= $user *)!! $PYTHON /data/vhost/!!(*= $vhost *)!!/internal/wiki/bin/wikibot-vhosts.py
 11 * * * * !!(*= $user *)!! $PYTHON /data/vhost/!!(*= $vhost *)!!/internal/wiki/bin/update-emails
 11 3 * * * root             $PYTHON /data/vhost/!!(*= $vhost *)!!/internal/wiki/bin/update-emails-google
