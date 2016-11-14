@@ -30,10 +30,10 @@ VHOSTS_HEADER = "=== Vhosts ({count}) ===\n"
 VHOSTS_EMPTY = "There are no vhosts configured on this server.\n"
 
 VHOSTS_TABLE_HEADER = """{| class="wikitable sortable"
-! Name !! Staging !! Site
+! Name !! Site
 """
 VHOSTS_TABLE_ROW = """|-
-| {name} || {staging} || {site}
+| {markup}[{href} {hostname}]{markup} || {site}
 """
 VHOSTS_TABLE_FOOTER = """|}\n"""
 
@@ -82,7 +82,8 @@ def format_servers(servers):
     Takes the dict of servers from find_servers and converts it into a string of wiki
     markup suitable for adding to the page.
     """
-    return "\n".join(format_server(name, deployments) for name, deployments in servers.items())
+    sorted_servers = sorted(servers.keys())
+    return "\n".join(format_server(s, servers[s]) for s in sorted_servers)
 
 def format_server(name, deployments):
     output = SERVER_HEADER.format(name=name)
@@ -97,19 +98,31 @@ def format_vhosts(vhosts):
         return VHOSTS_EMPTY
     output = VHOSTS_HEADER.format(count=len(vhosts))
     output += VHOSTS_TABLE_HEADER
-    output += "".join(format_vhost(vhost) for vhost in vhosts)
+    output += "".join(format_vhost(vhost) for vhost in sorted(vhosts, key=hostname_for_vhost))
     output += VHOSTS_TABLE_FOOTER
     return output
 
 def format_vhost(vhost):
-    return VHOSTS_TABLE_ROW.format(**vhost)
+    params = vhost.copy()
+    scheme = "https" if params.get('https') else "http"
+    params['hostname'] = hostname_for_vhost(params)
+    params['href'] = "{}://{}".format(scheme, params['hostname'])
+    params['markup'] = "" if params['staging'] else "'''"
+    return VHOSTS_TABLE_ROW.format(**params)
+
+def hostname_for_vhost(vhost):
+    redirects = vhost.get('redirects', [])
+    if vhost['name'] in redirects:
+        return vhost.get('aliases', [vhost['name']])[0]
+    return vhost['name']
+
 
 def format_databases(databases):
     if not databases:
         return DATABASES_EMPTY
     output = DATABASES_HEADER.format(count=len(databases))
     output += DATABASES_TABLE_HEADER
-    output += "".join(format_database(database) for database in databases)
+    output += "".join(format_database(database) for database in sorted(databases, key=lambda d: d['name']))
     output += DATABASES_TABLE_FOOTER
     return output
 
