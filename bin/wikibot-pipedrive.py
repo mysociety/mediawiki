@@ -148,4 +148,12 @@ while (pagination_remaining):
 
         print '  Something went wrong: ' + data['error']
 
+print 'Updating own page with latest run...'
+
+current_time = datetime.datetime.now().strftime('%A %-d %B %Y at %H:%M')
+this_run_text = 'Latest run: ' + current_time
+mw.replace_page_part('User:Pipedrivebot', this_run_text,
+                     'BEGIN_LATEST_RUN', 'END_LATEST_RUN',
+                     'Updated latest time the bot was run')
+
 print 'All done!'
