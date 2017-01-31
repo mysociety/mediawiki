@@ -9,4 +9,6 @@ PIPEDRIVEBOT_PASSWORD: password
 
 PIPEDRIVE_API_KEY: secret
 
+SLACK_STANDUPBOT_HOOK_URL: https://hooks.slack.com/services/foo/bar/baz
+
 WIKIBOT_SANDBOX: 0

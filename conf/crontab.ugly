@@ -10,3 +10,4 @@ PYTHON=/data/vhost/!!(*= $vhost *)!!/virtualenv-wiki/bin/python
 */5 * * * * !!(*= $user *)!! $PYTHON /data/vhost/!!(*= $vhost *)!!/internal/wiki/bin/wikibot-vhosts.py
 11 * * * * !!(*= $user *)!! $PYTHON /data/vhost/!!(*= $vhost *)!!/internal/wiki/bin/update-emails
 11 3 * * * root             $PYTHON /data/vhost/!!(*= $vhost *)!!/internal/wiki/bin/update-emails-google
+* 8-18 * * 1-5 !!(*= $user *)!! $PYTHON /data/vhost/!!(*= $vhost *)!!/internal/wiki/bin/standupbot.py
