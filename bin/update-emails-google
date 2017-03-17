@@ -73,10 +73,12 @@ for r in response['groups']:
     print '=== %s ([%s %s]) ===\n' % (r['name'], url, email)
     if r.get('aliases'):
         print 'Aliases: %s\n' % ', '.join(r['aliases'])
-    if email in ('mysociety-community', 'fixmystreet', 'theyworkforyou'):
-        continue
     members = groupadmin.members().list(groupKey=r['id']).execute()
-    for member in members.get('members', []):
+    members = members.get('members', [])
+    if email in ('mysociety-community', 'fixmystreet', 'theyworkforyou'):
+        print "* '''This is a public list with %d members'''" % len(members)
+        continue
+    for member in members:
         role = '(Owner)' if member['role'] == 'OWNER' else ''
         typ = '(Group)' if member['type'] == 'GROUP' else ''
         print '* %s %s %s' % (member['email'], role, typ)
