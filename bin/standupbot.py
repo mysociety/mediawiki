@@ -15,21 +15,33 @@ from urllib.error import HTTPError
 
 from mediawiki import MediaWiki, CONFIG
 
-# Handy flags to help with debugging...
-# Don't actually push messages to Slack, just show the message payload locally
-DO_NOT_SEND = False
-# Add all standups to the announce list, regardless of time
-ANNOUNCE_ALL = False
-# Announce in a specific channel, rather than the one listed in the Wiki
-# False is a default value, but '@yourusername' and '#sandbox' are also good
-ANNOUNCE_IN = False
+import argparse
+import logging
 
-print('StandupBot')
+logger = logging.getLogger('wikibot')
+logging.basicConfig()
+
+parser = argparse.ArgumentParser()
+
+parser.add_argument("-v", "--verbose", help="increase output verbosity",
+                    action="store_true")
+parser.add_argument("-q", "--quiet", help="don't actually message Slack",
+                    action="store_true")
+parser.add_argument("-a", "--all", help="announce all standups, regardless of time",
+                    action="store_true")
+parser.add_argument("-c", "--channel", help="announce in a specific channel, such as @username or #sandbox")
+
+args = parser.parse_args()
+
+if args.verbose:
+    logger.setLevel(logging.DEBUG)
+
+logger.info('StandupBot')
 
 # First check, let's see if we want to run at all
 
 if datetime.datetime.today().weekday() < 5:
-    print('Today is a weekday, starting the process!')
+    logger.debug('Today is a weekday, starting the process!')
 
     site = MediaWiki(user_agent='StandupBot')
 
@@ -41,11 +53,11 @@ if datetime.datetime.today().weekday() < 5:
     announceForTime = datetime.datetime.now()
     announceForTimeString = announceForTime.strftime("%H:%M")
 
-    print('Will be announcing standups for time ' + announceForTimeString)
+    logger.info('Will be announcing standups for time ' + announceForTimeString)
 
     # Grab the list of standups!
 
-    print('Getting standup page...')
+    logger.debug('Getting standup page...')
     page = site.get_page('Standups')
     text = page.text()
 
@@ -54,7 +66,7 @@ if datetime.datetime.today().weekday() < 5:
     standups = []
 
     if section:
-        print('Found table, parsing for standups...')
+        logger.debug('Found table, parsing for standups...')
         table = section.group(1)
 
         # Find all the matches in the table
@@ -62,8 +74,8 @@ if datetime.datetime.today().weekday() < 5:
 
             url = re.sub(r'{{ ?hangout ?\| ?(.*) ?}}', r'https://hangouts.google.com/hangouts/_/mysociety.org/\1', match.group(3))
 
-            if ANNOUNCE_IN:
-                channel = ANNOUNCE_IN
+            if args.channel:
+                channel = args.channel
             else:
                 channel = match.group(4)
 
@@ -75,38 +87,38 @@ if datetime.datetime.today().weekday() < 5:
             }
 
             # Is this a standup we want to announce?
-            if (standup['time'] == announceForTimeString or ANNOUNCE_ALL):
-                print('Planning to announce ' + standup['team'] + ' standup at ' + standup['time'])
+            if (standup['time'] == announceForTimeString or args.all):
+                logger.info('Planning to announce ' + standup['team'] + ' standup at ' + standup['time'])
                 standups.append(standup)
             else:
-                print('Skipping ' + standup['team'] + ' standup at ' + standup['time'])
+                logger.info('Skipping ' + standup['team'] + ' standup at ' + standup['time'])
 
-            print('\tURL: ' + standup['url'])
-            print('\tChannel: ' + standup['channel'])
+            logger.debug('\tURL: ' + standup['url'])
+            logger.debug('\tChannel: ' + standup['channel'])
 
         # If we have any standups in the list, go for it
         if len(standups) > 0:
 
             # Find the orders!
-            print('Finding orders...')
+            logger.debug('Finding orders...')
             page = site.get_page('Standups/Orders')
             text = page.text()
 
             orders = []
 
             for match in re.finditer(listPattern, text):
-                print('\tFound Order: ' + match.group(1))
+                logger.debug('\tFound Order: ' + match.group(1))
                 orders.append(match.group(1))
 
             # Find the starter questions
-            print('Finding questions...')
+            logger.debug('Finding questions...')
             page = site.get_page('Standups/Questions')
             text = page.text()
 
             questions = []
 
             for match in re.finditer(listPattern, text):
-                print('\tFound Question: ' + match.group(1))
+                logger.debug('\tFound Question: ' + match.group(1))
                 questions.append(match.group(1))
 
             # Actually loop through the standups which need announcing!
@@ -116,7 +128,7 @@ if datetime.datetime.today().weekday() < 5:
                     "username": "standupbot",
                     "icon_emoji": ":man_in_business_suit_levitating:",
                     "channel": standup['channel'],
-                    "text": "<!here> It's standup time!",
+                    "text": "It's standup time!",
                     "attachments": [
                         {
                             "color": "good",
@@ -138,8 +150,8 @@ if datetime.datetime.today().weekday() < 5:
                     ]
                 }
 
-                if DO_NOT_SEND:
-                    print(json.dumps(data))
+                if args.quiet:
+                    logger.info(json.dumps(data))
 
                 else:
 
@@ -150,13 +162,13 @@ if datetime.datetime.today().weekday() < 5:
                         response = urlopen(req, json.dumps(data).encode('utf-8'))
                     except HTTPError as e:
                         error_message = e.read()
-                        print(error_message)
+                        logger.error(error_message)
 
         else:
-            print('There are no standups which need announcing.')
+            logger.info('There are no standups which need announcing.')
 
     else:
-        print('Could not find standups table.')
+        logger.error('Could not find standups table on the Wiki.')
 
 else:
-    print('Today is the weekend, we don\'t have any standups.')
+    logger.info('Today is the weekend, we don\'t have any standups.')
