@@ -7,6 +7,22 @@ import datetime
 
 from mediawiki import MediaWiki, CONFIG
 
+import argparse
+import logging
+
+logger = logging.getLogger('wikibot')
+logging.basicConfig()
+
+parser = argparse.ArgumentParser()
+
+parser.add_argument("-v", "--verbose", help="increase output verbosity",
+                    action="store_true")
+
+args = parser.parse_args()
+
+if args.verbose:
+    logger.setLevel(logging.DEBUG)
+
 # Pipedrive's weird custom field values
 pipedrive_field = {
     'url': 'c1c3eeb09294d3cc7f4f063112928f2af0fd3f47',
@@ -37,21 +53,21 @@ pagination_remaining = True
 # Threshold for an organisation becoming inactive
 inactive_after_date = datetime.date.today() - datetime.timedelta(days=365)
 
-print 'Pipedrive Bot'
+logger.info('Pipedrive Bot')
 
-print 'Connecting to the Wiki...'
+logger.debug('Connecting to the Wiki...')
 
 mw = MediaWiki(username=CONFIG['PIPEDRIVEBOT_USERNAME'],
                password=CONFIG['PIPEDRIVEBOT_PASSWORD'],
                user_agent='Wiki PipeDrive Bot')
 
-print 'Connected!'
+logger.debug('Connected!')
 
-print 'Getting list of organisations from Pipedrive...'
+logger.info('Getting list of organisations from Pipedrive...')
 
 while (pagination_remaining):
 
-    print 'Getting from ' + str(pagination_start) + ' to ' + str(pagination_start + pagination_count)
+    logger.info('Getting from ' + str(pagination_start) + ' to ' + str(pagination_start + pagination_count))
 
     url = "https://api.pipedrive.com/v1/organizations?start=" + str(pagination_start) + "&limit=" + str(pagination_count) + "&api_token=" + CONFIG['PIPEDRIVE_API_KEY']
     response = urllib.urlopen(url)
@@ -61,10 +77,10 @@ while (pagination_remaining):
 
         for organisation in data['data']:
 
-            print '----'
-            print organisation['name'] + ' (' + str(organisation['id']) + ')'
+            logger.info('----')
+            logger.info(organisation['name'] + ' (' + str(organisation['id']) + ')')
 
-            print '  Getting page...'
+            logger.debug('Getting page...')
 
             page = mw.get_page(organisation['name'])
             text = page.text()
@@ -75,7 +91,7 @@ while (pagination_remaining):
 
             if not text:
                 text = 'This organisation page was created by [[User:Pipedrivebot|PipedriveBot]] based on data in [[Pipedrive]].'
-                print '  This is a new page!'
+                logger.info('This is a new page!')
                 update_notes = update_notes + ', created page'
 
             # Regardless of if there is an existing infobox or not, we need
@@ -127,11 +143,11 @@ while (pagination_remaining):
             organisation_infobox_match = organisation_infobox_re.search(text)
 
             if organisation_infobox_match is not None:
-                print '  Found infobox, updating it.'
+                logger.debug('Found infobox, updating it.')
                 text = re.sub(organisation_infobox_re, infobox, text)
                 update_notes = update_notes + ', updated infobox'
             else:
-                print '  No infobox found, adding a new one.'
+                logger.info('No infobox found, adding a new one.')
                 text = infobox + "\n\n" + text
                 update_notes = update_notes + ', added infobox'
 
@@ -139,16 +155,16 @@ while (pagination_remaining):
 
         # Any pagination to do?
         if data['additional_data']['pagination']['more_items_in_collection']:
-            print 'There\'s another page of data, hang tight...'
+            logger.debug('There\'s another page of data, hang tight...')
             pagination_start = data['additional_data']['pagination']['next_start']
         else:
             pagination_remaining = False
 
     else:
 
-        print '  Something went wrong: ' + data['error']
+        logger.error('Something went wrong: ' + data['error'])
 
-print 'Updating own page with latest run...'
+logger.info('Updating own page with latest run...')
 
 current_time = datetime.datetime.now().strftime('%A %-d %B %Y at %H:%M')
 this_run_text = 'Latest run: ' + current_time
@@ -156,4 +172,4 @@ mw.replace_page_part('User:Pipedrivebot', this_run_text,
                      'BEGIN_LATEST_RUN', 'END_LATEST_RUN',
                      'Updated latest time the bot was run')
 
-print 'All done!'
+logger.info('All done!')
