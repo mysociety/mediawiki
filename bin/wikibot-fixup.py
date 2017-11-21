@@ -5,21 +5,37 @@ import re
 
 from mediawiki import MediaWiki
 
-print 'Wiki Fixup Randomiser'
+import argparse
+import logging
+
+logger = logging.getLogger('wikibot')
+logging.basicConfig()
+
+parser = argparse.ArgumentParser()
+
+parser.add_argument("-v", "--verbose", help="increase output verbosity",
+                    action="store_true")
+
+args = parser.parse_args()
+
+if args.verbose:
+    logger.setLevel(logging.DEBUG)
+
+logger.info('Wiki Fixup Randomiser')
 
 site = MediaWiki(user_agent='Wiki Fixup Bot')
 
 category = site.get_page('Category:Work Needed')
 pages = [page for page in category]
 
-print 'There are ' + str(len(pages)) + ' pages needing work.'
+logger.info('There are ' + str(len(pages)) + ' pages needing work.')
 
 chosenpage = random.choice(pages)
 
 fixpage = chosenpage.name
 fixcount = len(pages)
 
-print 'Today we shall fix "' + chosenpage.name + '"!'
+logger.info('Today we shall fix "' + chosenpage.name + '"!')
 
 # Go get the home page, this is where Today lives
 page = site.get_page('Main_Page')
@@ -42,17 +58,17 @@ sectionmatch = sectionre.search(text)
 update_notes = 'Automatic update from Wiki Fixup Bot'
 
 if sectionmatch is not None:
-    print '  Found section, updating it with article count and random page.'
+    logger.info('Found section, updating it with article count and random page.')
     text = re.sub(sectionre, section, text)
     update_notes += ', updated pages in need of help section'
 else:
-    print '  No section found, adding a new one with article count and random page.'
+    logger.warning('No section found, adding a new one with article count and random page.')
     text = section + "\n\n" + text
     update_notes += ', added pages in need of help section'
 
 # Save out the page, for good and awesome.
 if text != page.text():
     page.save(text, summary=update_notes)
-    print '  Page saved.'
+    logger.info('Page saved.')
 else:
-    print '  No change in page text, not saving'
+    logger.info('No change in page text, not saving.')
