@@ -33,7 +33,7 @@ VHOSTS_TABLE_HEADER = """{| class="wikitable sortable"
 ! Name !! Site
 """
 VHOSTS_TABLE_ROW = """|-
-| {markup}[{href} {hostname}]{markup} || {site}
+| {markup}[{href} {hostname}]{markup} {vhost_name} || {site}
 """
 VHOSTS_TABLE_FOOTER = """|}\n"""
 
@@ -108,6 +108,7 @@ def format_vhost(vhost):
     params['hostname'] = hostname_for_vhost(params)
     params['href'] = "{}://{}".format(scheme, params['hostname'])
     params['markup'] = "" if params['staging'] else "'''"
+    params['vhost_name'] = "" if params['hostname'] == params['name'] else "<br>''(vhost: %s)''" % params['name']
     return VHOSTS_TABLE_ROW.format(**params)
 
 def hostname_for_vhost(vhost):
