@@ -31,7 +31,6 @@ class MediaWiki(object):
             clients_useragent=user_agent,
             path=CONFIG['WIKI_PATH']
         )
-        site.login(username, password)
         logger.info('Connected!')
         self.site = site
 
