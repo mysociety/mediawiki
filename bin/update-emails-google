@@ -6,8 +6,11 @@ import re
 import sys
 import logging
 from collections import defaultdict
-from oauth2client.client import SignedJwtAssertionCredentials
-from apiclient.discovery import build
+
+from googleapiclient.discovery import build
+from oauth2client.service_account import ServiceAccountCredentials
+from googleapiclient import errors
+
 from httplib2 import Http
 from StringIO import StringIO
 from mediawiki import MediaWiki
@@ -15,19 +18,26 @@ from mediawiki import MediaWiki
 sys.stdout = StringIO()
 logger = logging.getLogger('wikibot')
 
-client_id = 'email-lookup-service@internal-179008.iam.gserviceaccount.com'
-sub_user = 'api-target-user@mysociety.org'
-api_key_file = '/etc/mysociety/google_apps_api_key.p12'
+SERVICE_ACCOUNT_EMAIL = 'email-lookup-service@internal-179008.iam.gserviceaccount.com'
+SERVICE_ACCOUNT_PKCS12_FILE_PATH = '/etc/mysociety/google_apps_api_key.p12'
+SCOPES = ['https://www.googleapis.com/auth/admin.directory.user.readonly',
+          'https://www.googleapis.com/auth/admin.directory.group.readonly']
+DELEGATE_USER = 'api-target-user@mysociety.org'
 
-with open(api_key_file) as f:
-    private_key = f.read()
+def get_directory():
+    "Return an authenticated connection to the Admin SDK API."
 
-credentials = SignedJwtAssertionCredentials(
-    client_id, private_key,
-    'https://www.googleapis.com/auth/admin.directory.user.readonly',
-    sub=sub_user)
-http_auth = credentials.authorize(Http())
-useradmin = build('admin', 'directory_v1', http=http_auth)
+    credentials = ServiceAccountCredentials.from_p12_keyfile(
+        SERVICE_ACCOUNT_EMAIL,
+        SERVICE_ACCOUNT_PKCS12_FILE_PATH,
+        'notasecret',
+        scopes=SCOPES)
+
+    credentials = credentials.create_delegated(DELEGATE_USER)
+
+    return build('admin', 'directory_v1', credentials=credentials)
+
+useradmin = get_directory()
 
 # Generate output data
 print '== Users ==\n'
@@ -54,26 +64,18 @@ for unit in sorted(x, key=sort_in_order):
         print '* %s %s%s' % (r['name']['fullName'], r['primaryEmail'], aliases)
     print
 
-credentials = SignedJwtAssertionCredentials(
-    client_id, private_key,
-    'https://www.googleapis.com/auth/admin.directory.group.readonly',
-    sub=sub_user)
-
-http_auth = credentials.authorize(Http())
-groupadmin = build('admin', 'directory_v1', http=http_auth)
-
 print '== Groups ==\n'
 
 GROUPS_URL = 'https://groups.google.com/a/mysociety.org/forum/#!forum/%s'
 
-response = groupadmin.groups().list(domain='mysociety.org').execute()
+response = useradmin.groups().list(domain='mysociety.org').execute()
 for r in response['groups']:
     email = r['email'].replace('@mysociety.org', '')
     url = GROUPS_URL % email
     print '=== %s ([%s %s]) ===\n' % (r['name'], url, email)
     if r.get('aliases'):
         print 'Aliases: %s\n' % ', '.join(r['aliases'])
-    members = groupadmin.members().list(groupKey=r['id']).execute()
+    members = useradmin.members().list(groupKey=r['id']).execute()
     members = members.get('members', [])
     if email in ('mysociety-community', 'fixmystreet', 'theyworkforyou'):
         print "* '''This is a public list with %d members'''" % len(members)
