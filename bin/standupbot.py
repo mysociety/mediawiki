@@ -7,7 +7,6 @@ import json
 import random
 import datetime
 
-from future.moves.urllib.parse import urlparse, urlencode
 from future.moves.urllib.request import urlopen, Request
 from future.moves.urllib.error import HTTPError
 
