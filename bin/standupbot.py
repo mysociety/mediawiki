@@ -1,17 +1,15 @@
 # StandupBot
 
 from __future__ import print_function
-from future.standard_library import install_aliases
-install_aliases()
 
 import re
 import json
 import random
 import datetime
 
-from urllib.parse import urlparse, urlencode
-from urllib.request import urlopen, Request
-from urllib.error import HTTPError
+from future.moves.urllib.parse import urlparse, urlencode
+from future.moves.urllib.request import urlopen, Request
+from future.moves.urllib.error import HTTPError
 
 from mediawiki import MediaWiki, CONFIG
 
