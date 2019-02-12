@@ -5,7 +5,7 @@ from __future__ import print_function
 import re
 import json
 import random
-import datetime
+from datetime import datetime, timedelta
 
 from future.moves.urllib.request import urlopen, Request
 from future.moves.urllib.error import HTTPError
@@ -37,7 +37,7 @@ logger.info('StandupBot')
 
 # First check, let's see if we want to run at all
 
-if datetime.datetime.today().weekday() < 5:
+if datetime.today().weekday() < 5:
     logger.debug('Today is a weekday, starting the process!')
 
     site = MediaWiki(user_agent='StandupBot')
@@ -45,9 +45,9 @@ if datetime.datetime.today().weekday() < 5:
     # Regex patterns
     listPattern = re.compile('\* (.*)')
     sectionPattern = re.compile('<!-- Begin Standups Schedule -->(.*?)<!-- End Standups Schedule -->', re.M | re.S)
-    standupPattern = re.compile('\|-\n\| (.*?)\n\| (.*?)\n\| (.*?)\n\| (.*?)\n', re.M | re.S)
+    standupPattern = re.compile('\|-\n\| (.*?)\n\| (.*?)\n\| (.*?)\n\| (.*?)\n\| ([0-9]*?)\n', re.M | re.S)
 
-    announceForTime = datetime.datetime.now()
+    announceForTime = datetime.now()
     announceForTimeString = announceForTime.strftime("%H:%M")
 
     logger.info('Will be announcing standups for time ' + announceForTimeString)
@@ -76,19 +76,30 @@ if datetime.datetime.today().weekday() < 5:
             else:
                 channel = match.group(4)
 
+            warningMinutes = int(match.group(5))
+            logger.debug('Standup has {} minutes warning'.format(warningMinutes))
+
+            # Convert the time string to an actual structure
+            targetTime = datetime.strptime(match.group(2), "%H:%M")
+
+            # Subtract minutes warning
+            announceTime = targetTime - timedelta(minutes=warningMinutes)
+            announceTimeString = announceTime.strftime("%H:%M")
+
             standup = {
                 'team': match.group(1),
-                'time': match.group(2),
+                'announceTime': announceTimeString,
                 'url': url,
-                'channel': channel
+                'channel': channel,
+                'warning': warningMinutes
             }
 
             # Is this a standup we want to announce?
-            if (standup['time'] == announceForTimeString or args.all):
-                logger.info('Planning to announce ' + standup['team'] + ' standup at ' + standup['time'])
+            if (standup['announceTime'] == announceForTimeString or args.all):
+                logger.info('Planning to announce ' + standup['team'] + ' standup at ' + standup['announceTime'])
                 standups.append(standup)
             else:
-                logger.info('Skipping ' + standup['team'] + ' standup at ' + standup['time'])
+                logger.info('Skipping announcing ' + standup['team'] + ' standup at ' + standup['announceTime'])
 
             logger.debug('\tURL: ' + standup['url'])
             logger.debug('\tChannel: ' + standup['channel'])
@@ -121,11 +132,22 @@ if datetime.datetime.today().weekday() < 5:
             # Actually loop through the standups which need announcing!
             for standup in standups:
 
+                # Decide on the appropriate message string
+                if standup['warning'] == 0:
+                    standupMessage = "It's time for the {} standup!".format(standup['team'])
+                else:
+                    if standup['warning'] == 1:
+                        plural = 'minute'
+                    else:
+                        plural = 'minutes'
+
+                    standupMessage = "It's the {} standup in {} {}!".format(standup['team'], standup['warning'], plural)
+
                 data = {
                     "username": "standupbot",
                     "icon_emoji": ":man_in_business_suit_levitating:",
                     "channel": standup['channel'],
-                    "text": "<!here> It's time for the {} standup!".format(standup['team']),
+                    "text": "<!here> {}".format(standupMessage),
                     "attachments": [
                         {
                             "color": "good",
