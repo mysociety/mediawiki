@@ -125,7 +125,7 @@ if datetime.datetime.today().weekday() < 5:
                     "username": "standupbot",
                     "icon_emoji": ":man_in_business_suit_levitating:",
                     "channel": standup['channel'],
-                    "text": "It's standup time!",
+                    "text": "<!here> It's standup time!",
                     "attachments": [
                         {
                             "color": "good",
