@@ -5,6 +5,7 @@ PATH=/usr/local/bin:/usr/bin:/bin
 BOT_PATH=/data/vhost/!!(*= $vhost *)!!/internal/wiki/bin
 PYTHON=/data/vhost/!!(*= $vhost *)!!/virtualenv-wiki/bin/python
 PYTHONIOENCODING=utf-8
+MAILTO=root@example.com
 
 24 5 * * * !!(*= $user *)!! $PYTHON $BOT_PATH/wikibot-fixup.py
 36 3 * * * !!(*= $user *)!! $PYTHON $BOT_PATH/wikibot-pipedrive.py
