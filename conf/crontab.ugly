@@ -2,12 +2,13 @@
 #     Timed tasks for wiki. Template file.
 
 PATH=/usr/local/bin:/usr/bin:/bin
+BOT_PATH=/data/vhost/!!(*= $vhost *)!!/internal/wiki/bin
 PYTHON=/data/vhost/!!(*= $vhost *)!!/virtualenv-wiki/bin/python
 PYTHONIOENCODING=utf-8
 
-24 5 * * * !!(*= $user *)!! $PYTHON /data/vhost/!!(*= $vhost *)!!/internal/wiki/bin/wikibot-fixup.py
-36 3 * * * !!(*= $user *)!! $PYTHON /data/vhost/!!(*= $vhost *)!!/internal/wiki/bin/wikibot-pipedrive.py
-*/5 * * * * !!(*= $user *)!! $PYTHON /data/vhost/!!(*= $vhost *)!!/internal/wiki/bin/wikibot-vhosts.py
-11 * * * * !!(*= $user *)!! $PYTHON /data/vhost/!!(*= $vhost *)!!/internal/wiki/bin/update-emails
-11 3 * * * root             $PYTHON /data/vhost/!!(*= $vhost *)!!/internal/wiki/bin/update-emails-google
-* 8-18 * * 1-5 !!(*= $user *)!! $PYTHON /data/vhost/!!(*= $vhost *)!!/internal/wiki/bin/standupbot.py
+24 5 * * * !!(*= $user *)!! $PYTHON $BOT_PATH/wikibot-fixup.py
+36 3 * * * !!(*= $user *)!! $PYTHON $BOT_PATH/wikibot-pipedrive.py
+*/5 * * * * !!(*= $user *)!! $PYTHON $BOT_PATH/wikibot-vhosts.py
+11 * * * * !!(*= $user *)!! $PYTHON $BOT_PATH/update-emails
+11 3 * * * root             $PYTHON $BOT_PATH/update-emails-google
+* 8-18 * * 1-5 !!(*= $user *)!! $PYTHON $BOT_PATH/standupbot.py
