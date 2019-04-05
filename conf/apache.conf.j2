@@ -1,0 +1,31 @@
+<VirtualHost *:80>
+
+    ServerAdmin webmaster@localhost
+    DocumentRoot /var/www/html
+
+    ErrorLog ${APACHE_LOG_DIR}/error.log
+    CustomLog ${APACHE_LOG_DIR}/access.log combined
+
+    RewriteEngine On
+    # Cater for requests for /wiki
+    RewriteRule ^/?wiki(/.*)?$ %{DOCUMENT_ROOT}/mediawiki/index.php [L]
+    # Redirect / to Main Page
+    RewriteRule ^/*$ %{DOCUMENT_ROOT}/mediawiki/index.php [L]
+    # Block access to setup page, this shouldn't be needed.
+    RewriteRule "^/mediawiki/mw-config" "-" [F]
+
+    <Location />
+        Options +FollowSymLinks
+        AuthName "{{ env['wgSitename'] }}"
+        AuthType Basic
+        AuthUserFile /etc/apache2/htgroup-{{ env['ADMIN_GROUP'] }}
+        require valid-user
+    </Location>
+
+    <Directory /var/lib/mediawiki/>
+      Options +FollowSymLinks -Indexes
+      AllowOverride All
+      Require all granted
+    </Directory>
+
+</VirtualHost>

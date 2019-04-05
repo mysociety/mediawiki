@@ -2,8 +2,10 @@ down.html
 web/mediawiki
 conf/general.yml
 conf/general.yml.deployed
-conf/httpd.conf
-conf/httpd.conf.deployed
+conf/apache.conf
+conf/apache.conf.deployed
+conf/LocalSettings.php
+conf/LocalSettings.php.deployed
 *.pyc
 .terraform/
 venv/

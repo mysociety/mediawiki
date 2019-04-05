@@ -1,0 +1,14 @@
+WIKI_URL: {{ env['wgServer'] or "wiki.mysociety.org" }}
+WIKI_PATH: /mediawiki/
+
+WIKIFIXUPBOT_USERNAME: wikifixupbot
+WIKIFIXUPBOT_PASSWORD: {{ env['wikifixupbot_password'] or "password" }}
+
+PIPEDRIVEBOT_USERNAME: pipedrivebot
+PIPEDRIVEBOT_PASSWORD: {{ env['pipedrivebot_password'] or "password" }}
+
+PIPEDRIVE_API_KEY: {{ env['pipedrive_api_key'] or "secret" }}
+
+SLACK_STANDUPBOT_HOOK_URL: {{ env['slack_hook_url'] or "https://hooks.slack.com/services/foo/bar/baz" }}
+
+WIKIBOT_SANDBOX: 0
