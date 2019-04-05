@@ -9,7 +9,7 @@ import yaml
 logger = logging.getLogger('wikibot')
 
 conf_file = os.path.dirname(os.path.dirname(__file__)) + '/conf/general.yml'
-CONFIG = yaml.load(open(conf_file))
+CONFIG = yaml.load(open(conf_file), Loader=yaml.FullLoader)
 
 
 class MediaWiki(object):
