@@ -1,0 +1,12 @@
+down.html
+web/mediawiki
+conf/general.yml
+conf/general.yml.deployed
+conf/httpd.conf
+conf/httpd.conf.deployed
+*.pyc
+.terraform/
+venv/
+.env
+env.*
+
