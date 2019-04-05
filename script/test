@@ -1,0 +1,24 @@
+#!/bin/bash
+#
+# test - run test suite in appropriate manner
+#
+
+set -e
+
+cd "$(dirname "$0")/.."
+
+[ -z "$DEBUG" ] || set -x
+
+# Get environment variables, if they exist.
+ENV_FILE=${ENV_FILE:-../env.sh}
+if [ -f "$ENV_FILE" ]; then
+  echo "==> Loading environment from ${ENV_FILE}"
+  source $ENV_FILE
+fi
+
+# May want to source / check for environment variables to determine
+# whether you need to run `script/setup` or `script/update` before
+# running and tests.
+
+echo "==> Docker Compose syntax check"
+docker-compose config

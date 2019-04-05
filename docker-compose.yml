@@ -1,0 +1,14 @@
+version: '3.7'
+services:
+  mediawiki:
+    image: mysocietyorg/mediawiki:${TAG:-0.0.1}
+    ports:
+      - "${PORT:-8000}:80"
+    volumes:
+      - ./conf/LocalSettings.php:/var/www/html/mediawiki/LocalSettings.php:ro
+      - ./conf/apache.conf:/etc/apache2/sites-enabled/000-default.conf:ro
+      - /etc/apache/htgroup-${ADMIN_GROUP:-admin-intranet}:/etc/apache2/htgroup-${ADMIN_GROUP:-admin-intranet}:ro
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
