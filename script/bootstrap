@@ -1,0 +1,42 @@
+#!/bin/bash
+#
+# bootstrap - dependency management
+#
+
+set -e
+
+cd "$(dirname "$0")/.."
+
+# Get environment variables, if they exist.
+if [ -f "../env.sh" ]; then
+  echo "==> Loading environment from ../env.sh"
+  source ../env.sh
+fi
+
+## Set-up virtualenv
+# Check we've got virtualenv available.
+command -v virtualenv >/dev/null 2>&1 || {
+  echo "==> The virtualenv package is required, aborting.";
+  exit 1;
+}
+
+echo "==> Setting up and activating the virtualenv..."
+# Some env variables used during development seem to make things break - set
+# them back to the defaults which is what they would have on the servers.
+PYTHONDONTWRITEBYTECODE=""
+
+# This allows us to override the location of the virtualenv
+VIRTUALENV_DIR=${VIRTUALENV_DIR:-venv}
+virtualenv_activate="$VIRTUALENV_DIR/bin/activate"
+if [ ! -f "$virtualenv_activate" ]; then
+  virtualenv $VIRTUALENV_DIR
+fi
+source $virtualenv_activate
+
+# Upgrade python package management
+curl -L -s https://raw.github.com/mysociety/commonlib/master/bin/get_pip.bash | bash
+
+# Install what we need
+pip install -r requirements.txt
+
+echo "==> Done setting up virtualenv."
