@@ -1,0 +1,18 @@
+#!/bin/bash
+#
+# setup - initialise or reset project to clean state
+#
+
+set -e
+
+cd "$(dirname "$0")/.."
+
+# Get environment variables, if they exist.
+ENV_FILE=${ENV_FILE:-../env.sh}
+if [ -f "$ENV_FILE" ]; then
+  echo "==> Loading environment from ${ENV_FILE}"
+  source $ENV_FILE
+fi
+
+# Just call update for now.
+script/update
