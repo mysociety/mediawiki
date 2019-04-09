@@ -8,9 +8,10 @@ set -e
 cd "$(dirname "$0")/.."
 
 # Get environment variables, if they exist.
-if [ -f "../env.sh" ]; then
-  echo "==> Loading environment from ../env.sh"
-  source ../env.sh
+ENV_FILE=${ENV_FILE:-../env.sh}
+if [ -f "$ENV_FILE" ]; then
+  echo "==> Loading environment from ${ENV_FILE}"
+  source $ENV_FILE
 fi
 
 ## Set-up virtualenv
