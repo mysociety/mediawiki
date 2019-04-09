@@ -1,0 +1,29 @@
+#!/bin/bash
+#
+# build - build artefacts
+#
+
+set -e
+
+cd "$(dirname "$0")/.."
+
+# Get environment variables, if they exist.
+ENV_FILE=${ENV_FILE:-../env.sh}
+if [ -f "$ENV_FILE" ]; then
+  echo "==> Loading environment from ${ENV_FILE}"
+  source $ENV_FILE
+fi
+
+# Flag we're doing a build.
+export BUILD=true
+
+# Run bootstrap
+script/bootstrap
+
+# Set TF_STATE_KEY based on the site.
+export TF_STATE_KEY=$(echo $wgServer | sed -e 's/\./-/g')
+echo "==> Setting TF_STATE_KEY to ${TF_STATE_KEY} and running terraform..."
+
+cd terraform
+make apply
+cd ..
