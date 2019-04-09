@@ -1,0 +1,36 @@
+#!/bin/bash
+#
+# server - launch application
+#
+
+set -e
+
+cd "$(dirname "$0")/.."
+
+# Get environment variables, if they exist.
+ENV_FILE=${ENV_FILE:-../env.sh}
+if [ -f "$ENV_FILE" ]; then
+  echo "==> Loading environment from ${ENV_FILE}"
+  source $ENV_FILE
+fi
+
+# Ensure we're ready to run
+script/update
+
+STACK=$(echo $wgServer | sed -e 's/\./_/g')
+
+# Check for Swarm mode.
+SWARM=$(docker info 2>/dev/null | grep ^Swarm | awk '{ print $NF }')
+echo "==> Swarm mode is ${SWARM}"
+if [ "$SWARM" = "active" ] ; then
+  if [ "$1" = "--stop" ]; then
+    echo "==> Stopping Swarm stack ${STACK}..."
+    docker stack rm ${STACK}
+  else
+    echo "==> Deploying Swarm stack ${STACK}..."
+    docker stack deploy -c ${PWD}/docker-compose.yml ${STACK}
+  fi
+else
+  echo "==> Docker Compose not implemented yet."
+fi
+
