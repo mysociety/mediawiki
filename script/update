@@ -27,6 +27,10 @@ fi
 
 script/bootstrap
 
+echo "==> Activating virtualenv..."
+VIRTUALENV_DIR=${VIRTUALENV_DIR:-venv}
+source ${VIRTUALENV_DIR}/bin/activate
+
 echo "==> Building configuration..."
 for template_file in conf/*.j2 ; do
   build_conf $template_file ${template_file%%.j2}

@@ -21,7 +21,7 @@ command -v virtualenv >/dev/null 2>&1 || {
   exit 1;
 }
 
-echo "==> Setting up and activating the virtualenv..."
+echo "==> Setting up the virtualenv..."
 # Some env variables used during development seem to make things break - set
 # them back to the defaults which is what they would have on the servers.
 PYTHONDONTWRITEBYTECODE=""
