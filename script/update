@@ -18,14 +18,14 @@ set -e
 
 cd "$(dirname "$0")/.."
 
+script/bootstrap
+
 # Get environment variables, if they exist.
 ENV_FILE=${ENV_FILE:-../env.sh}
 if [ -f "$ENV_FILE" ]; then
   echo "==> Loading environment from ${ENV_FILE}"
   source $ENV_FILE
 fi
-
-script/bootstrap
 
 echo "==> Activating virtualenv..."
 VIRTUALENV_DIR=${VIRTUALENV_DIR:-venv}
