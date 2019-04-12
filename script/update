@@ -32,6 +32,7 @@ VIRTUALENV_DIR=${VIRTUALENV_DIR:-venv}
 source ${VIRTUALENV_DIR}/bin/activate
 
 echo "==> Building configuration..."
+umask 027
 for template_file in conf/*.j2 ; do
   build_conf $template_file ${template_file%%.j2}
   cp ${template_file%%.j2} ${template_file%%.j2}.deployed
