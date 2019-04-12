@@ -14,9 +14,6 @@ if [ -f "$ENV_FILE" ]; then
   source $ENV_FILE
 fi
 
-# Ensure we're ready to run
-script/update
-
 STACK=$(echo $wgServer | sed -e 's/\./_/g')
 
 # Check for Swarm mode.
