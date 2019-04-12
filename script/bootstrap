@@ -63,5 +63,5 @@ fi
 ## Docker image pull, don't bother if building as we'll separate checks there.
 if [ -z "$BUILD" ]; then
   echo "==> Checking for local copy of required docker images..."
-  docker-compose pull
+  sudo -E docker-compose pull
 fi
