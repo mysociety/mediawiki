@@ -33,3 +33,11 @@ RUN a2enmod authz_groupfile \
 
 # Updated Apache configuration.
 COPY apache.conf /etc/apache2/sites-available/000-default.conf
+
+# Add user and update php-fpm to use it.
+# We'll leave `listen.group` set to `www-data` so Apache can talk to the socker.
+RUN set -ex; \
+  adduser --shell /bin/bash --disabled-password --gecos "Wiki User" --uid 4415 wiki; \
+  sed -i -e 's/^user .*/user = wiki/' /etc/php/7.0/fpm/pool.d/www.conf; \
+  sed -i -e 's/^group .*/group = wiki/' /etc/php/7.0/fpm/pool.d/www.conf; \
+  sed -i -e 's/^listen.owner.*/listen.owner = wiki/' /etc/php/7.0/fpm/pool.d/www.conf;
