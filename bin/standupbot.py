@@ -46,6 +46,7 @@ if datetime.today().weekday() < 5:
     listPattern = re.compile('\* (.*)')
     sectionPattern = re.compile('<!-- Begin Standups Schedule -->(.*?)<!-- End Standups Schedule -->', re.M | re.S)
     standupPattern = re.compile('\|-\n\| (.*?)\n\| (.*?)\n\| (.*?)\n\| (.*?)\n\| ([0-9]*?)\n', re.M | re.S)
+    roomPattern = re.compile('{{ ?(hangout|meet) ?\| ?(.*) ?}}')
 
     announceForTime = datetime.now()
     announceForTimeString = announceForTime.strftime("%H:%M")
@@ -69,7 +70,15 @@ if datetime.today().weekday() < 5:
         # Find all the matches in the table
         for match in re.finditer(standupPattern, table):
 
-            url = re.sub(r'{{ ?hangout ?\| ?(.*) ?}}', r'https://hangouts.google.com/hangouts/_/mysociety.org/\1', match.group(3))
+            roomMatch = roomPattern.match(match.group(3))
+
+            if roomMatch:
+                if roomMatch.group(1) == 'hangout':
+                    url = 'https://hangouts.google.com/hangouts/_/mysociety.org/{}'.format(roomMatch.group(2))
+                elif roomMatch.group(1) == 'meet':
+                    url = 'https://meet.google.com/{}'.format(roomMatch.group(2))
+            else:
+                url = match.group(3)
 
             if args.channel:
                 channel = args.channel
