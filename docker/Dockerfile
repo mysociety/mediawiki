@@ -1,4 +1,4 @@
-FROM mysocietyorg/apache-php-fpm:20190517101613.a164f6b
+FROM mysocietyorg/apache-php-fpm:20190619163201.972d528
 MAINTAINER sysadmin@mysociety.org
 
 RUN apt-get update \
