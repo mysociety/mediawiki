@@ -17,7 +17,7 @@ fi
 STACK=$(echo $wgServer | sed -e 's/\./_/g')
 
 # Check for Swarm mode.
-SWARM=$(docker info 2>/dev/null | grep ^Swarm | awk '{ print $NF }')
+SWARM=$(docker info 2>/dev/null | grep '^ Swarm' | awk '{ print $NF }')
 echo "==> Swarm mode is ${SWARM}"
 if [ "$SWARM" = "active" ] ; then
   if [ "$1" = "--stop" ]; then
