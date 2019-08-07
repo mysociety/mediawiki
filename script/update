@@ -34,6 +34,7 @@ source ${VIRTUALENV_DIR}/bin/activate
 echo "==> Building configuration..."
 umask 027
 for template_file in conf/*.j2 ; do
+  [ -e "${template_file%%.j2}" ] && cp ${template_file%%.j2} ${template_file%%.j2}.last
   build_conf $template_file ${template_file%%.j2}
   cp ${template_file%%.j2} ${template_file%%.j2}.deployed
 done
