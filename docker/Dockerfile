@@ -1,4 +1,4 @@
-FROM mysocietyorg/apache-php-fpm:20190619163201.972d528
+FROM mysocietyorg/apache-php-fpm:20190820155834.972d528
 MAINTAINER sysadmin@mysociety.org
 
 RUN apt-get update \
@@ -11,6 +11,8 @@ RUN apt-get update \
           php-zip \
           php-intl \
           php-apcu \
+          php-net-smtp \
+          php-mail \
           unzip \
           zip \
         --no-install-recommends \
