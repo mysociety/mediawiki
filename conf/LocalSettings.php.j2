@@ -202,3 +202,12 @@ $wgSecretKey = "{{ env['wgSecretKey'] }}";
 $wgUpgradeKey = "{{ env['wgUpgradeKey'] }}";
 
 #$wgDefaultUserOptions['searcheverything'] = 1;
+
+# Email
+$wgSMTP = [
+  'host'     => "smtp.mysociety.org",
+  'port'     => 25,
+  'auth'     => "PLAIN",
+  'username' => "{{ env['wgSMTP_username'] }}",
+  'password' => '{{ env['wgSMTP_password'] }}'
+];
