@@ -16,18 +16,42 @@ fi
 
 STACK=$(echo $wgServer | sed -e 's/\./_/g')
 
+# Argument handling.
+# The default action when called without an argument is "start"
+ACTION=$1
+[ -n "$ACTION" ] || ACTION="start"
+
 # Check for Swarm mode.
 SWARM=$(docker info 2>/dev/null | grep '^ Swarm' | awk '{ print $NF }')
 echo "==> Swarm mode is ${SWARM}"
 if [ "$SWARM" = "active" ] ; then
-  if [ "$1" = "--stop" ]; then
-    echo "==> Stopping Swarm stack ${STACK}..."
-    docker stack rm ${STACK}
-  else
-    echo "==> Deploying Swarm stack ${STACK}..."
-    docker stack deploy -c ${PWD}/docker-compose.yml ${STACK}
-  fi
+  case $ACTION in
+    start | --start)
+      echo "==> Deploying Swarm stack ${STACK}..."
+      docker stack deploy -c ${PWD}/docker-compose.yml ${STACK}
+      ;;
+    stop | --stop)
+      echo "==> Stopping Swarm stack ${STACK}..."
+      docker stack rm ${STACK}
+      ;;
+    reload | --reload)
+      echo "==> Reloading Swarm service ${STACK}_mediawiki..."
+      docker service update --force ${STACK}_mediawiki
+      ;;
+    restart | --restart)
+      echo "==> Full restart of Swarm stack ${STACK}..."
+      docker stack rm ${STACK}
+      docker stack deploy -c ${PWD}/docker-compose.yml ${STACK}
+      ;;
+    status | --status)
+      echo "==> Checking status of stack ${STACK}..."
+      docker stack ps ${STACK}
+      ;;
+    *)
+      echo '==> Usage: script/server {start|stop|reload|restart|status}'
+      exit 1
+      ;;
+  esac
 else
   echo "==> Docker Compose not implemented yet."
 fi
-
