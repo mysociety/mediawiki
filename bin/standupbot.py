@@ -42,7 +42,7 @@ site = MediaWiki(user_agent='StandupBot')
 # Regex patterns
 listPattern = re.compile('\* (.*)')
 sectionPattern = re.compile('<!-- Begin Standups Schedule -->(.*?)<!-- End Standups Schedule -->', re.S)
-entryPattern = re.compile('\|-\n\| (.*?)\n\| (.*?)\n\| (.*?)\n\| (.*?)\n\| ([0-9]*?)\n', re.S)
+entryPattern = re.compile('\|-\n\| (.*?)\n\| (.*?)\n\| (.*?)\n\| (.*?)\n\| (.*?)\n\| (.*?)\n', re.S)
 roomPattern = re.compile('{{ ?(hangout|meet) ?\| ?(.*) ?}}')
 
 announceForTimeString = announceForTime.strftime("%H:%M")
@@ -82,6 +82,10 @@ for match in re.finditer(entryPattern, table):
     url = construct_url(match.group(3))
     channel = args.channel or match.group(4)
 
+    extra = True
+    if match.group(6) == 'No':
+        extra = False
+
     warningMinutes = int(match.group(5))
     logger.debug('Standup has {} minutes warning'.format(warningMinutes))
 
@@ -97,6 +101,7 @@ for match in re.finditer(entryPattern, table):
         'announceTime': announceTimeString,
         'url': url,
         'channel': channel,
+        'extra': extra,
         'warning': warningMinutes
     }
 
@@ -135,6 +140,8 @@ for standup in standups:
     # Decide on the appropriate message string
     if standup['warning'] == 0:
         standupMessage = "It's time for the {} standup!".format(standup['team'])
+        if not standup['extra']:
+            standupMessage += ' ' + standup['url']
     else:
         if standup['warning'] == 1:
             plural = 'minute'
@@ -148,7 +155,9 @@ for standup in standups:
         "icon_emoji": ":man_in_business_suit_levitating:",
         "channel": standup['channel'],
         "text": "<!here> {}".format(standupMessage),
-        "attachments": [
+    }
+    if standup['extra']:
+        data["attachments"] = [
             {
                 "color": "good",
                 "fallback": "Standup: " + standup['url'],
@@ -167,7 +176,6 @@ for standup in standups:
                 ]
             }
         ]
-    }
 
     if args.quiet:
         logger.info(json.dumps(data))
