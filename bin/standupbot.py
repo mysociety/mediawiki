@@ -23,6 +23,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument("-v", "--verbose", help="increase output verbosity", action="store_true")
 parser.add_argument("-q", "--quiet", help="don't actually message Slack", action="store_true")
 parser.add_argument("-a", "--all", help="announce all standups, regardless of time", action="store_true")
+parser.add_argument("-d", "--date", help="provide fake date to use")
 parser.add_argument("-c", "--channel", help="announce in a specific channel, such as @username or #sandbox")
 args = parser.parse_args()
 
@@ -31,6 +32,8 @@ if args.verbose:
 
 # First check, let's see if we want to run at all
 announceForTime = datetime.now().replace(second=0, microsecond=0)
+if args.date:
+    announceForTime = datetime.strptime(args.date, '%Y-%m-%dT%H:%M')
 if announceForTime.weekday() >= 5:
     logger.info('Today is the weekend, we don\'t have any standups.')
     sys.exit(0)
