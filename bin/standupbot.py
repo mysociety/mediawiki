@@ -30,7 +30,7 @@ if args.verbose:
     logger.setLevel(logging.DEBUG)
 
 # First check, let's see if we want to run at all
-announceForTime = datetime.now()
+announceForTime = datetime.now().replace(second=0, microsecond=0)
 if announceForTime.weekday() >= 5:
     logger.info('Today is the weekend, we don\'t have any standups.')
     sys.exit(0)
@@ -41,12 +41,12 @@ site = MediaWiki(user_agent='StandupBot')
 
 # Regex patterns
 listPattern = re.compile('\* (.*)')
+planningPattern = re.compile('<!-- Begin Planning Schedule -->(.*?)<!-- End Planning Schedule -->', re.S)
 sectionPattern = re.compile('<!-- Begin Standups Schedule -->(.*?)<!-- End Standups Schedule -->', re.S)
 entryPattern = re.compile('\|-\n\| (.*?)\n\| (.*?)\n\| (.*?)\n\| (.*?)\n\| (.*?)\n\| (.*?)\n', re.S)
 roomPattern = re.compile('{{ ?(hangout|meet) ?\| ?(.*) ?}}')
 
-announceForTimeString = announceForTime.strftime("%H:%M")
-logger.info('Will be announcing standups for time ' + announceForTimeString)
+logger.info('Will be announcing standups for time %s' % announceForTime)
 
 logger.debug('Getting standup page...')
 page = site.get_page('Standups')
@@ -66,58 +66,65 @@ def construct_url(m):
     return url
 
 
+def iter_row(section, planning):
+    if not section:
+        return
+    text = section.group(1)
+    url_column = 4 if planning else 3
+
+    for match in re.finditer(entryPattern, text):
+        targetTime = datetime.strptime(match.group(2), "%H:%M").time()
+        targetDate = datetime.strptime(match.group(3), "%Y-%m-%d") if planning else announceForTime
+        targetDatetime = datetime.combine(targetDate, targetTime)
+        warningMinutes = int(match.group(url_column+2))
+        announceTime = targetDatetime - timedelta(minutes=warningMinutes)
+
+        yield {
+            'team': match.group(1),
+            'url': construct_url(match.group(url_column)),
+            'channel': args.channel or match.group(url_column+1),
+            'warning': warningMinutes,
+            'announceTime': announceTime,
+            'planning': planning,
+            'extra': False if planning or match.group(6) == 'No' else True,
+        }
+
+
+to_announce = []
+plannings = {}
+section = planningPattern.search(text)
+for planning in iter_row(section, True):
+    team = planning['team']
+    if announceForTime.date() == planning['announceTime'].date():
+        # Skip standups on same day as sprint planning
+        plannings[team] = planning
+    if planning['announceTime'] == announceForTime or args.all:
+        logger.info('Planning to announce %s planning at %s' % (team, planning['announceTime']))
+        to_announce.append(planning)
+    else:
+        logger.info('Skipping announcing %s planning at %s' % (team, planning['announceTime']))
+
+
 section = sectionPattern.search(text)
 if not section:
     logger.error('Could not find standups table on the Wiki.')
     sys.exit(1)
 
-standups = []
-
 logger.debug('Found table, parsing for standups...')
-table = section.group(1)
 
-# Find all the matches in the table
-for match in re.finditer(entryPattern, table):
-    team = match.group(1)
-    url = construct_url(match.group(3))
-    channel = args.channel or match.group(4)
-
-    extra = True
-    if match.group(6) == 'No':
-        extra = False
-
-    warningMinutes = int(match.group(5))
-    logger.debug('Standup has {} minutes warning'.format(warningMinutes))
-
-    # Convert the time string to an actual structure
-    targetTime = datetime.strptime(match.group(2), "%H:%M")
-
-    # Subtract minutes warning
-    announceTime = targetTime - timedelta(minutes=warningMinutes)
-    announceTimeString = announceTime.strftime("%H:%M")
-
-    standup = {
-        'team': team,
-        'announceTime': announceTimeString,
-        'url': url,
-        'channel': channel,
-        'extra': extra,
-        'warning': warningMinutes
-    }
-
-    # Is this a standup we want to announce?
-    if (standup['announceTime'] == announceForTimeString or args.all):
-        logger.info('Planning to announce ' + team + ' standup at ' + standup['announceTime'])
-        standups.append(standup)
+for standup in iter_row(section, False):
+    team = standup['team']
+    if team not in plannings and (standup['announceTime'] == announceForTime or args.all):
+        logger.info('Planning to announce %s standup at %s' % (team, standup['announceTime']))
+        to_announce.append(standup)
     else:
-        logger.info('Skipping announcing ' + team + ' standup at ' + standup['announceTime'])
+        logger.info('Skipping announcing %s standup at %s' % (team, standup['announceTime']))
 
     logger.debug('\tURL: ' + standup['url'])
     logger.debug('\tChannel: ' + standup['channel'])
 
-# If we have any standups in the list, go for it
-if len(standups) == 0:
-    logger.info('There are no standups which need announcing.')
+if len(to_announce) == 0:
+    logger.info('There are no standups/plannings which need announcing.')
     sys.exit(0)
 
 # Find the orders!
@@ -135,11 +142,13 @@ questions = [m.group(1) for m in re.finditer(listPattern, text)]
 logger.debug('Found %d questions' % len(questions))
 
 # Actually loop through the standups which need announcing!
-for standup in standups:
+for standup in to_announce:
 
     # Decide on the appropriate message string
+    event = 'sprint planning' if standup['planning'] else 'standup'
+
     if standup['warning'] == 0:
-        standupMessage = "It's time for the {} standup!".format(standup['team'])
+        standupMessage = "It's time for the {} {}!".format(standup['team'], event)
         if not standup['extra']:
             standupMessage += ' ' + standup['url']
     else:
@@ -148,7 +157,7 @@ for standup in standups:
         else:
             plural = 'minutes'
 
-        standupMessage = "It's the {} standup in {} {}!".format(standup['team'], standup['warning'], plural)
+        standupMessage = "It's the {} {} in {} {}!".format(standup['team'], event, standup['warning'], plural)
 
     data = {
         "username": "standupbot",
