@@ -161,6 +161,8 @@ for standup in to_announce:
             plural = 'minutes'
 
         standupMessage = "It's the {} {} in {} {}!".format(standup['team'], event, standup['warning'], plural)
+        if not standup['extra']:
+            standupMessage += ' ' + standup['url']
 
     data = {
         "username": "standupbot",
