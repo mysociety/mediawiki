@@ -5,6 +5,7 @@ from __future__ import print_function
 import argparse
 import json
 import logging
+import os
 import random
 import re
 import sys
@@ -33,6 +34,23 @@ def no_run_date(time):
     if time.weekday() >= 5:
         logger.info('Today is the weekend, we don\'t have any standups.')
         return True
+
+    path = os.path.dirname(__file__) + '/../../bank-holidays.json'
+    try:
+        data = json.load(open(path))
+    except IOError:
+        return False
+
+    date = time.date().isoformat()
+    def is_today(i):
+        return i['date'] == date
+    bh_ew = filter(is_today, data['england-and-wales']['events'])
+    bh_s = filter(is_today, data['scotland']['events'])
+
+    if bh_ew and bh_s:
+        logger.info('UK-wide bank holiday, no standups')
+        return True
+
     return False
 
 

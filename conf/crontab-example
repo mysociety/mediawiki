@@ -13,3 +13,4 @@ MAILTO=root@example.com
 11 * * * * !!(*= $user *)!! $PYTHON $BOT_PATH/update-emails
 11 3 * * * root             $PYTHON $BOT_PATH/update-emails-google
 * 8-18 * * 1-5 !!(*= $user *)!! $PYTHON $BOT_PATH/standupbot.py
+0 0 * * * !!(*= $user *)!! curl --silent https://www.gov.uk/bank-holidays.json > $BOT_PATH/../../../bank-holidays.json
