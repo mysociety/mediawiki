@@ -1,6 +1,6 @@
 # StandupBot
 
-from __future__ import print_function
+
 
 import argparse
 import json
@@ -44,8 +44,8 @@ def no_run_date(time):
     date = time.date().isoformat()
     def is_today(i):
         return i['date'] == date
-    bh_ew = filter(is_today, data['england-and-wales']['events'])
-    bh_s = filter(is_today, data['scotland']['events'])
+    bh_ew = list(filter(is_today, data['england-and-wales']['events']))
+    bh_s = list(filter(is_today, data['scotland']['events']))
 
     if bh_ew and bh_s:
         logger.info('UK-wide bank holiday, no standups')
