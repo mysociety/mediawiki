@@ -12,7 +12,7 @@ from oauth2client.service_account import ServiceAccountCredentials
 from googleapiclient import errors
 
 from httplib2 import Http
-from StringIO import StringIO
+from io import StringIO
 from mediawiki import MediaWiki
 
 sys.stdout = StringIO()
@@ -40,7 +40,7 @@ def get_directory():
 useradmin = get_directory()
 
 # Generate output data
-print '== Users ==\n'
+print('== Users ==\n')
 
 sort_order = (
     '/Admins and super admins', '/Staff users', '/Non-staff users',
@@ -58,13 +58,13 @@ response = useradmin.users().list(customer='my_customer').execute()
 x = defaultdict(list)
 [x[r['orgUnitPath']].append(r) for r in response['users']]
 for unit in sorted(x, key=sort_in_order):
-    print '=== %s ===\n' % unit
+    print('=== %s ===\n' % unit)
     for r in sorted(x[unit], key=lambda a: a['name']['fullName']):
         aliases = ' (' + ' '.join(r['aliases']) + ')' if r.get('aliases') else ''
-        print '* %s %s%s' % (r['name']['fullName'], r['primaryEmail'], aliases)
-    print
+        print('* %s %s%s' % (r['name']['fullName'], r['primaryEmail'], aliases))
+    print()
 
-print '== Groups ==\n'
+print('== Groups ==\n')
 
 GROUPS_URL = 'https://groups.google.com/a/mysociety.org/forum/#!forum/%s'
 
@@ -72,19 +72,19 @@ response = useradmin.groups().list(domain='mysociety.org').execute()
 for r in response['groups']:
     email = r['email'].replace('@mysociety.org', '')
     url = GROUPS_URL % email
-    print '=== %s ([%s %s]) ===\n' % (r['name'], url, email)
+    print('=== %s ([%s %s]) ===\n' % (r['name'], url, email))
     if r.get('aliases'):
-        print 'Aliases: %s\n' % ', '.join(r['aliases'])
+        print('Aliases: %s\n' % ', '.join(r['aliases']))
     members = useradmin.members().list(groupKey=r['id']).execute()
     members = members.get('members', [])
     if email in ('mysociety-community', 'fixmystreet', 'theyworkforyou'):
-        print "* '''This is a public list with %d members'''" % len(members)
+        print("* '''This is a public list with %d members'''" % len(members))
         continue
     for member in members:
         role = '(Owner)' if member['role'] == 'OWNER' else ''
         typ = '(Group)' if member['type'] == 'GROUP' else ''
-        print '* %s %s %s' % (member['email'], role, typ)
-    print
+        print('* %s %s %s' % (member['email'], role, typ))
+    print()
 
 
 # Update wiki
