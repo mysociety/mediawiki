@@ -5,7 +5,7 @@ presentation of the contents of /data/vhosts.json
 
 """
 
-from __future__ import print_function
+
 
 import os
 import sys
