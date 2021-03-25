@@ -1,7 +1,7 @@
 # wiki-fixup Bot
 
 import re
-import urllib
+import urllib.request
 import json
 import datetime
 
@@ -70,7 +70,7 @@ while (pagination_remaining):
     logger.info('Getting from ' + str(pagination_start) + ' to ' + str(pagination_start + pagination_count))
 
     url = "https://api.pipedrive.com/v1/organizations?start=" + str(pagination_start) + "&limit=" + str(pagination_count) + "&api_token=" + CONFIG['PIPEDRIVE_API_KEY']
-    response = urllib.urlopen(url)
+    response = urllib.request.urlopen(url)
     data = json.loads(response.read())
 
     if data['success']:
