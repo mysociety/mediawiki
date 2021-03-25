@@ -30,12 +30,13 @@ PYTHONDONTWRITEBYTECODE=""
 VIRTUALENV_DIR=${VIRTUALENV_DIR:-venv}
 virtualenv_activate="$VIRTUALENV_DIR/bin/activate"
 if [ ! -f "$virtualenv_activate" ]; then
-  virtualenv $VIRTUALENV_DIR
+  virtualenv --python=python3 $VIRTUALENV_DIR
 fi
 source $virtualenv_activate
 
 # Upgrade python package management
-curl -L -s https://raw.github.com/mysociety/commonlib/master/bin/get_pip.bash | bash
+pip install --upgrade pip
+pip install --upgrade setuptools
 
 # Install what we need
 pip install -r requirements.txt
