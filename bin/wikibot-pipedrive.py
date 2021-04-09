@@ -71,7 +71,7 @@ while (pagination_remaining):
 
     url = "https://api.pipedrive.com/v1/organizations?start=" + str(pagination_start) + "&limit=" + str(pagination_count) + "&api_token=" + CONFIG['PIPEDRIVE_API_KEY']
     response = urllib.request.urlopen(url)
-    data = json.loads(response.read())
+    data = json.loads(response.read().decode('utf8'))
 
     if data['success']:
 
