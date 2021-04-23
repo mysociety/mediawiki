@@ -26,6 +26,8 @@ The terraform code manages an S3 bucket and a user policy that grants access to 
 
 Both `script/build` and `terraform/Makefile` are currently intended to work only with our infrastructure. `TF_STATE_KEY` should be set to the domain name of the wiki instance required with hyphens replacing dots and ensure you have suitable AWS credentials for access to our core account in your environment.
 
+Note that this configuration now requires Terraform ~> 0.15.
+
 ### Docker
 `docker/Makefile` can be used to build new images. Images will be tagged `YYYYMMDDhhmmss.abcd1234` where `abcd1234` is the short version of the most recent local commit hash. These images are available from [Docker Hub](https://cloud.docker.com/u/mysocietyorg/repository/docker/mysocietyorg/mediawiki).
 
