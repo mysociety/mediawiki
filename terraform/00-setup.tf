@@ -25,6 +25,5 @@ variable "expire_version_days" {
 
 provider "aws" {
   region  = var.aws_region
-  version = "~> 2.1"
 }
 
