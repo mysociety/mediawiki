@@ -24,6 +24,6 @@ variable "expire_version_days" {
 }
 
 provider "aws" {
-  region  = var.aws_region
+  region = var.aws_region
 }
 
