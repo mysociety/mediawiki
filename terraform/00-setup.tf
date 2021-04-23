@@ -1,5 +1,6 @@
 terraform {
-  backend "s3" {}
+  backend "s3" {
+  }
 }
 
 variable "aws_region" {
@@ -23,6 +24,7 @@ variable "expire_version_days" {
 }
 
 provider "aws" {
-  region  = "${var.aws_region}"
+  region  = var.aws_region
   version = "~> 2.1"
 }
+
