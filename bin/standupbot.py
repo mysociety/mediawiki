@@ -35,6 +35,10 @@ def no_run_date(time):
         logger.info('Today is the weekend, we don\'t have any standups.')
         return True
 
+    if time.year == 2021 and time.month == 12 and time.day >= 29:
+        logger.info('Twixtmas')
+        return True
+
     path = os.path.dirname(__file__) + '/../../bank-holidays.json'
     try:
         data = json.load(open(path))
