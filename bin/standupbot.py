@@ -58,12 +58,14 @@ def no_run_date(time):
     return False
 
 
+COL = '(?:\\| (.*?)\n)'
+
 class WikiParser(object):
     # Regex patterns
     listPattern = re.compile(r'\* (.*)')
     planningPattern = re.compile('<!-- Begin Planning Schedule -->(.*?)<!-- End Planning Schedule -->', re.S)
     sectionPattern = re.compile('<!-- Begin Standups Schedule -->(.*?)<!-- End Standups Schedule -->', re.S)
-    entryPattern = re.compile('\\|-\n\\| (.*?)\n\\| (.*?)\n\\| (.*?)\n\\| (.*?)\n\\| (.*?)\n\\| (.*?)\n', re.S)
+    entryPattern = re.compile(f'\\|-\n{COL}{COL}{COL}{COL}{COL}{COL}{COL}?', re.S)
     roomPattern = re.compile('{{ ?(hangout|meet) ?\\| ?(.*) ?}}')
 
     def __init__(self, time, channel=None, ignore_time=False):
@@ -108,23 +110,33 @@ class WikiParser(object):
         if not section:
             return
         text = section.group(1)
-        url_column = 4 if planning else 3
 
         for match in re.finditer(self.entryPattern, text):
-            targetTime = datetime.strptime(match.group(2), "%H:%M").time()
-            targetDate = datetime.strptime(match.group(3), "%Y-%m-%d") if planning else self.time
+            if planning:
+                team, time, date, url, channel, minutes, _ = match.groups()
+                targetDate = datetime.strptime(date, "%Y-%m-%d")
+                extra = False
+            else:
+                team, time, days, url, channel, minutes, extra = match.groups()
+                targetDate = self.time
+                extra = (extra != 'No')
+                days = days.split()
+                if days and str(self.time.isoweekday()) not in days:
+                    continue
+
+            targetTime = datetime.strptime(time, "%H:%M").time()
             targetDatetime = datetime.combine(targetDate, targetTime)
-            warningMinutes = int(match.group(url_column + 2))
+            warningMinutes = int(minutes)
             announceTime = targetDatetime - timedelta(minutes=warningMinutes)
 
             yield {
-                'team': match.group(1),
-                'url': self.construct_url(match.group(url_column)),
-                'channel': self.channel_override or match.group(url_column + 1),
+                'team': team,
+                'url': self.construct_url(url),
+                'channel': self.channel_override or channel,
                 'warning': warningMinutes,
                 'announceTime': announceTime,
                 'planning': planning,
-                'extra': False if planning or match.group(6) == 'No' else True,
+                'extra': extra,
             }
 
     def planning(self):
