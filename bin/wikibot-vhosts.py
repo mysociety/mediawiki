@@ -129,7 +129,7 @@ def format_databases(databases):
 
 def format_database(database):
     kwargs = database.copy()
-    kwargs['vhosts'] = "<br />".join(kwargs['vhosts'])
+    kwargs['vhosts'] = "<br />".join(sorted(kwargs['vhosts']))
     return DATABASES_TABLE_ROW.format(**kwargs)
 
 def update_wiki_page(wiki_text):
