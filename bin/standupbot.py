@@ -65,7 +65,7 @@ class WikiParser(object):
     listPattern = re.compile(r'\* (.*)')
     planningPattern = re.compile('<!-- Begin Planning Schedule -->(.*?)<!-- End Planning Schedule -->', re.S)
     sectionPattern = re.compile('<!-- Begin Standups Schedule -->(.*?)<!-- End Standups Schedule -->', re.S)
-    entryPattern = re.compile(f'\\|-\n{COL}{COL}{COL}{COL}{COL}{COL}{COL}?', re.S)
+    entryPattern = re.compile('\\|-\n{COL}{COL}{COL}{COL}{COL}{COL}{COL}?'.format(COL=COL), re.S)
     roomPattern = re.compile('{{ ?(hangout|meet) ?\\| ?(.*) ?}}')
 
     def __init__(self, time, channel=None, ignore_time=False):
