@@ -8,7 +8,7 @@ set -e
 cd "$(dirname "$0")/.."
 
 # Get environment variables, if they exist.
-ENV_FILE=${ENV_FILE:-../env.sh}
+ENV_FILE=${ENV_FILE:-conf/env.sh}
 if [ -f "$ENV_FILE" ]; then
   echo "==> Loading environment from ${ENV_FILE}"
   source $ENV_FILE
