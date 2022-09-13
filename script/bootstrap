@@ -15,12 +15,6 @@ if [ -f "$ENV_FILE" ]; then
 fi
 
 ## Set-up virtualenv
-# Check we've got virtualenv available.
-command -v virtualenv >/dev/null 2>&1 || {
-  echo "==> The virtualenv package is required, aborting.";
-  exit 1;
-}
-
 echo "==> Setting up the virtualenv..."
 # Some env variables used during development seem to make things break - set
 # them back to the defaults which is what they would have on the servers.
@@ -30,7 +24,7 @@ PYTHONDONTWRITEBYTECODE=""
 VIRTUALENV_DIR=${VIRTUALENV_DIR:-venv}
 virtualenv_activate="$VIRTUALENV_DIR/bin/activate"
 if [ ! -f "$virtualenv_activate" ]; then
-  virtualenv --python=python3 $VIRTUALENV_DIR
+  python3 -m venv $VIRTUALENV_DIR
 fi
 source $virtualenv_activate
 
