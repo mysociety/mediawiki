@@ -3,6 +3,9 @@ web/mediawiki
 conf/general.yml
 conf/apache.conf
 conf/LocalSettings.php
+conf/stack.yml
+conf/crontab
+conf/env.sh
 conf/*.last
 conf/*.deployed
 *.pyc
