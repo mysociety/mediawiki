@@ -4,7 +4,7 @@
 
 COMMIT := $(shell git log -1 --pretty=%h)
 TIME   := $(shell date +%Y%m%d%H%M%S)
-DISTRO  = buster
+DISTRO  = bullseye
 
 .PHONEY: build
 

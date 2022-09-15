@@ -1,6 +1,7 @@
 [submodule "docker/extensions/AWS"]
 	path = docker/extensions/AWS
 	url = https://github.com/edwardspec/mediawiki-aws-s3.git
+	shallow = true
 [submodule "docker/extensions/Auth_remoteuser"]
 	path = docker/extensions/Auth_remoteuser
 	url = https://github.com/wikimedia/mediawiki-extensions-Auth_remoteuser.git
