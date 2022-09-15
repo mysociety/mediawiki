@@ -47,7 +47,7 @@ class MediaWiki(object):
         page = self.get_page(page)
         current_text = page.text()
         text = re.sub(
-            '(<!-- %s -->\s*).*?(\s*<!-- %s -->)(?s)' % (begin_marker, end_marker),
+            '(?s)(<!-- %s -->\s*).*?(\s*<!-- %s -->)' % (begin_marker, end_marker),
             r'\1%s\2' % text.strip(), current_text)
         if text != current_text:
             logger.info('Updating %s' % page.name)
