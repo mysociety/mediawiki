@@ -5,7 +5,7 @@ cffi==1.14.5
 chardet==3.0.4
 cryptography==3.3.2
 enum34==1.1.6
-future==0.17.1
+future==0.18.2
 google-api-python-client==1.7.7
 google-auth==1.6.2
 google-auth-httplib2==0.0.3
