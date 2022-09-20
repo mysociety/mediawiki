@@ -31,7 +31,7 @@ def main():
 
         text = []
         for local, recips in exim_aliases(fn):
-            recips = re.sub('[a-z0-9._-]*@[a-z0-9._-]*(?i)', r'[mailto:\g<0> \g<0>]', recips)
+            recips = re.sub('(?i)[a-z0-9._-]*@[a-z0-9._-]*', r'[mailto:\g<0> \g<0>]', recips)
             text.append("* '''[mailto:%s@%s %s]''': %s" % (local, o, local, recips))
             if local in SUPPORT_ALIASES:
                 support_data[local].append("* '''[mailto:%s@%s %s]''': %s" % (local, o, o, recips))
