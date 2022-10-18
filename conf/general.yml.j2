@@ -3,6 +3,8 @@ WIKI_PATH: /mediawiki/
 
 WIKIFIXUPBOT_USERNAME: wikifixupbot
 WIKIFIXUPBOT_PASSWORD: {{ env['wikifixupbot_password'] or "password" }}
+WIKIFIXUPBOT_PUPPETDB_KEY: {{ env['wikifixupbot_puppetdb_key'] or "/path/to/key.pem" }}
+WIKIFIXUPBOT_PUPPETDB_CERT:  {{ env['wikifixupbot_puppetdb_cert'] or "/path/to/cert.pem" }}
 
 PIPEDRIVEBOT_USERNAME: pipedrivebot
 PIPEDRIVEBOT_PASSWORD: {{ env['pipedrivebot_password'] or "password" }}
