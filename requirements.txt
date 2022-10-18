@@ -3,6 +3,7 @@ cachetools==3.0.0
 certifi==2018.11.29
 cffi==1.14.5
 chardet==3.0.4
+charset-normalizer==2.1.1
 cryptography==3.3.2
 enum34==1.1.6
 future==0.18.2
@@ -22,6 +23,7 @@ pyasn1-modules==0.2.3
 pycparser==2.19
 pyOpenSSL==18.0.0
 pyparsing==2.4.7
+pypuppetdb==3.0.0
 PyYAML==5.4
 requests==2.28.1
 requests-oauthlib==1.2.0
