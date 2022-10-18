@@ -8,6 +8,9 @@ conf/crontab
 conf/env.sh
 conf/*.last
 conf/*.deployed
+conf/mediawiki.crt.pem
+conf/mediawiki.key.pem
+
 *.pyc
 .terraform/
 venv/
