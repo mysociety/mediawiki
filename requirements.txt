@@ -21,7 +21,7 @@ oauthlib==3.0.0
 pyasn1==0.4.5
 pyasn1-modules==0.2.3
 pycparser==2.19
-pyOpenSSL==18.0.0
+pyOpenSSL==23.0.0
 pyparsing==2.4.7
 pypuppetdb==3.0.0
 PyYAML==5.4
