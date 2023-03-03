@@ -2,24 +2,20 @@
 #
 # Fetch list of email addresses in our Google Apps domain.
 
-import re
 import sys
 import logging
 from collections import defaultdict
 
 from googleapiclient.discovery import build
-from oauth2client.service_account import ServiceAccountCredentials
-from googleapiclient import errors
+from google.oauth2.service_account import Credentials
 
-from httplib2 import Http
 from io import StringIO
 from mediawiki import MediaWiki
 
 sys.stdout = StringIO()
 logger = logging.getLogger('wikibot')
 
-SERVICE_ACCOUNT_EMAIL = 'email-lookup-service@internal-179008.iam.gserviceaccount.com'
-SERVICE_ACCOUNT_PKCS12_FILE_PATH = '/etc/mysociety/google_apps_api_key.p12'
+SERVICE_ACCOUNT_FILE = '/etc/mysociety/google_apps_api_key.json'
 SCOPES = ['https://www.googleapis.com/auth/admin.directory.user.readonly',
           'https://www.googleapis.com/auth/admin.directory.group.readonly']
 DELEGATE_USER = 'api-target-user@mysociety.org'
@@ -27,13 +23,10 @@ DELEGATE_USER = 'api-target-user@mysociety.org'
 def get_directory():
     "Return an authenticated connection to the Admin SDK API."
 
-    credentials = ServiceAccountCredentials.from_p12_keyfile(
-        SERVICE_ACCOUNT_EMAIL,
-        SERVICE_ACCOUNT_PKCS12_FILE_PATH,
-        'notasecret',
-        scopes=SCOPES)
-
-    credentials = credentials.create_delegated(DELEGATE_USER)
+    credentials = Credentials.from_service_account_file(
+        SERVICE_ACCOUNT_FILE,
+        scopes=SCOPES,
+        subject=DELEGATE_USER)
 
     return build('admin', 'directory_v1', credentials=credentials)
 
