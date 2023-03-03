@@ -26,7 +26,7 @@ class MediaWiki(object):
 
         logger.info('Connecting to the Wiki...')
         site = mwclient.Site(
-            ('https', CONFIG['WIKI_URL']),
+            CONFIG['WIKI_URL'],
             httpauth=(username, password),
             clients_useragent=user_agent,
             path=CONFIG['WIKI_PATH']
