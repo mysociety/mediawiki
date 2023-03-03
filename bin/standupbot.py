@@ -1,7 +1,5 @@
 # StandupBot
 
-
-
 import argparse
 import json
 import logging
@@ -11,8 +9,8 @@ import re
 import sys
 from datetime import datetime, timedelta
 
-from future.moves.urllib.error import HTTPError
-from future.moves.urllib.request import Request, urlopen
+from urllib.error import HTTPError
+from urllib.request import Request, urlopen
 from mediawiki import CONFIG, MediaWiki
 
 logger = logging.getLogger('wikibot')
