@@ -62,12 +62,26 @@ def get_server_data_from_puppetdb(fields):
   servers = defaultdict(dict)
   nodes = db.nodes()
   for node in nodes:
-    fqdn = node.fact('fqdn').value
+    networking = node.fact('networking').value
+    osinfo = node.fact('os').value
+    fqdn = networking['fqdn']
     for field in fields:
-      try:
-        servers[fqdn][field] = node.fact(field).value
-      except:
-        continue
+      if field == 'hostname':
+        servers[fqdn][field] = networking['hostname']
+      elif field == 'ipaddress':
+        try:
+          servers[fqdn][field] = networking['ip']
+        except:
+          continue
+      elif field == 'ipaddress6':
+        servers[fqdn][field] = networking['ip6']
+      elif field == 'lsbdistcodename':
+        servers[fqdn][field] = osinfo['distro']['codename']
+      else:
+        try:
+          servers[fqdn][field] = node.fact(field).value
+        except:
+          continue
 
   # disconnect from PuppetDB
   db.disconnect()
