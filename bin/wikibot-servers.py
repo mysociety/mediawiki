@@ -19,7 +19,7 @@ fields = [
   "ipaddress",
   "ipaddress6",
   "location",
-  "lsbdistcodename",
+  "codename",
   "server_role",
   "ssh_fp_ecdsa",
   "ssh_fp_ed25519",
@@ -41,7 +41,7 @@ SERVERS_TABLE_HEADER = """{| class="wikitable sortable"
 """
 
 SERVERS_TABLE_ROW = """|-
-| [{href} {hostname}] || {lsbdistcodename} || {zone} || [[Server_Roles/{server_role}|{server_role}]] || {ipaddress6} || {ipaddress} || '''RSA''' {ssh_fp_rsa}<br> '''ECDSA''' {ssh_fp_ecdsa} <br> '''ED25519''' {ssh_fp_ed25519}
+| [{href} {hostname}] || {codename} || {zone} || [[Server_Roles/{server_role}|{server_role}]] || {ipaddress6} || {ipaddress} || '''RSA''' {ssh_fp_rsa}<br> '''ECDSA''' {ssh_fp_ecdsa} <br> '''ED25519''' {ssh_fp_ed25519}
 """
 
 SERVERS_RABLE_FOOTER = """|}\n"""
@@ -75,7 +75,7 @@ def get_server_data_from_puppetdb(fields):
           continue
       elif field == 'ipaddress6':
         servers[fqdn][field] = networking['ip6']
-      elif field == 'lsbdistcodename':
+      elif field == 'codename':
         servers[fqdn][field] = osinfo['distro']['codename']
       else:
         try:
