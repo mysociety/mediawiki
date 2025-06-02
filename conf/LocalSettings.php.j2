@@ -207,6 +207,13 @@ $wgUpgradeKey = "{{ env['wgUpgradeKey'] }}";
 
 #$wgDefaultUserOptions['searcheverything'] = 1;
 
+$wgNamespacesToBeSearchedDefault = [
+    NS_MAIN => true,
+    NS_USER => true,
+    NS_PROJECT => true,
+    NS_CATEGORY => true,
+];
+
 # Email
 $wgSMTP = [
   'host'     => "smtp.mysociety.org",
