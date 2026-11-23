@@ -158,6 +158,16 @@ $wgVerifyMimeType = false;
 $wgEnableAPI = true;
 $wgEnableWriteAPI = true;
 
+// Enable the visual editor
+wfLoadExtension( 'VisualEditor' );
+
+// Enable it for wikitext
+$wgVisualEditorEnableWikitext = true;
+
+// Uncomment this to make the Visual Editor the default
+// for wikitext source mode, too:
+// $wgDefaultUserOptions['visualeditor-newwikitext'] = 1;
+
 # From Template
 
 $wgSitename      = "{{ env['wgSitename'] }}";
